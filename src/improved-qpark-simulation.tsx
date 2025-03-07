@@ -450,3 +450,609 @@ const XcelQParkRealisticSimulation = () => {
         <div className="relative">
           {/* Logo Shield */}
           <svg viewBox="0 0 100 100" className="w-full">
+            <defs>
+              <linearGradient id="xcelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#0f2027" />
+                <stop offset="50%" stopColor="#203a43" />
+                <stop offset="100%" stopColor="#2c5364" />
+              </linearGradient>
+            </defs>
+            <path 
+              d="M50,5 L90,20 L90,45 C90,65 75,85 50,95 C25,85 10,65 10,45 L10,20 L50,5 Z" 
+              fill="url(#xcelGradient)" 
+              stroke="#fff" 
+              strokeWidth="1"
+            />
+            <path 
+              d="M30,40 L45,65 L55,65 L70,40 L60,40 L50,55 L40,40 L30,40 Z" 
+              fill="#fff" 
+              stroke="#fff" 
+              strokeWidth="0.5"
+            />
+          </svg>
+        </div>
+        <div className="text-center font-bold text-blue-900 mt-2" style={{ fontSize: size === 'large' ? '1.5rem' : '1rem' }}>
+          XCEL SECURITY
+        </div>
+      </div>
+    );
+  };
+  
+  // Render the simulation
+  return (
+    <div className="flex flex-col h-screen bg-gray-900 text-white overflow-hidden">
+      {/* Sound effects (hidden) */}
+      <audio ref={alarmSoundRef} src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-tone-996.mp3" preload="auto"></audio>
+      <audio ref={notificationSoundRef} src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3" preload="auto"></audio>
+      
+      {/* Header */}
+      <div className="bg-gray-800 p-4 flex items-center justify-between border-b border-gray-700">
+        <div className="flex items-center space-x-4">
+          <XcelLogo size="small" />
+          <div>
+            <h1 className="text-xl font-bold">Q-PARK Simulation</h1>
+            <p className="text-sm text-gray-400">Système de détection incendie</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <Clock className="h-5 w-5 text-blue-400" />
+            <span>{currentTime.toLocaleTimeString()}</span>
+          </div>
+          
+          <button 
+            onClick={() => setSoundEnabled(!soundEnabled)} 
+            className="p-2 rounded-full hover:bg-gray-700"
+            title={soundEnabled ? "Désactiver le son" : "Activer le son"}
+          >
+            {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+          </button>
+          
+          <div className={`flex items-center space-x-2 ${alarmActive ? 'text-red-500 animate-pulse' : 'text-gray-400'}`}>
+            <Bell className="h-5 w-5" />
+            <span>{alarmActive ? "ALARME ACTIVE" : "Système normal"}</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Main content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left sidebar - Parking levels */}
+        <div className="w-48 bg-gray-800 border-r border-gray-700 p-4 flex flex-col">
+          <h2 className="font-bold mb-4 text-lg">Niveaux</h2>
+          
+          <div className="space-y-2">
+            <button 
+              onClick={() => setActiveLevel('p1')} 
+              className={`w-full p-2 rounded text-left flex items-center space-x-2 ${activeLevel === 'p1' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}
+            >
+              <Layers className="h-5 w-5" />
+              <span>Niveau -1</span>
+            </button>
+            
+            <button 
+              onClick={() => setActiveLevel('p2')} 
+              className={`w-full p-2 rounded text-left flex items-center space-x-2 ${activeLevel === 'p2' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}
+            >
+              <Layers className="h-5 w-5" />
+              <span>Niveau -2</span>
+            </button>
+            
+            <button 
+              onClick={() => setActiveLevel('p3')} 
+              className={`w-full p-2 rounded text-left flex items-center space-x-2 ${activeLevel === 'p3' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}
+            >
+              <Layers className="h-5 w-5" />
+              <span>Niveau -3</span>
+            </button>
+          </div>
+          
+          <div className="mt-8">
+            <h2 className="font-bold mb-4 text-lg">Simulation</h2>
+            
+            <div className="space-y-2">
+              <button 
+                onClick={simulateRandomFire} 
+                disabled={simulationStep > 0}
+                className={`w-full p-2 rounded text-left flex items-center space-x-2 ${simulationStep > 0 ? 'bg-gray-700 opacity-50 cursor-not-allowed' : 'bg-red-700 hover:bg-red-600'}`}
+              >
+                <Flame className="h-5 w-5" />
+                <span>Simuler Incendie</span>
+              </button>
+              
+              <button 
+                onClick={resetSimulation} 
+                disabled={simulationStep === 0}
+                className={`w-full p-2 rounded text-left flex items-center space-x-2 ${simulationStep === 0 ? 'bg-gray-700 opacity-50 cursor-not-allowed' : 'bg-gray-700 hover:bg-gray-600'}`}
+              >
+                <RotateCw className="h-5 w-5" />
+                <span>Réinitialiser</span>
+              </button>
+              
+              <button 
+                onClick={() => setShowProcessFlow(!showProcessFlow)} 
+                className={`w-full p-2 rounded text-left flex items-center space-x-2 ${showProcessFlow ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}
+              >
+                <Server className="h-5 w-5" />
+                <span>Flux Processus</span>
+              </button>
+            </div>
+          </div>
+          
+          <div className="mt-auto">
+            <XcelLogo />
+          </div>
+        </div>
+        
+        {/* Main visualization area */}
+        <div className="flex-1 flex flex-col">
+          {/* Parking visualization */}
+          <div className="flex-1 relative bg-gray-900 overflow-hidden">
+            {/* Parking level title */}
+            <div className="absolute top-4 left-4 bg-gray-800 bg-opacity-80 p-2 rounded z-10">
+              <h2 className="font-bold text-lg">
+                {activeLevel === 'p1' ? 'Niveau -1' : activeLevel === 'p2' ? 'Niveau -2' : 'Niveau -3'}
+              </h2>
+            </div>
+            
+            {/* Parking structures */}
+            {structures[activeLevel].map((structure, index) => {
+              if (structure.type === 'column') {
+                return (
+                  <div 
+                    key={`column-${index}`}
+                    className="absolute w-4 h-4 bg-gray-600 rounded-full transform -translate-x-1/2 -translate-y-1/2"
+                    style={{ left: `${structure.x}%`, top: `${structure.y}%` }}
+                  ></div>
+                );
+              } else if (structure.type === 'elevator') {
+                return (
+                  <div 
+                    key={`elevator-${index}`}
+                    className="absolute bg-blue-900 rounded-md flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2"
+                    style={{ 
+                      left: `${structure.x}%`, 
+                      top: `${structure.y}%`,
+                      width: `${structure.width}%`,
+                      height: `${structure.height}%`
+                    }}
+                  >
+                    <div className="text-xs font-bold">ASCENSEUR</div>
+                  </div>
+                );
+              } else if (structure.type === 'stairs') {
+                return (
+                  <div 
+                    key={`stairs-${index}`}
+                    className="absolute bg-green-900 rounded-md flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2"
+                    style={{ 
+                      left: `${structure.x}%`, 
+                      top: `${structure.y}%`,
+                      width: `${structure.width}%`,
+                      height: `${structure.height}%`
+                    }}
+                  >
+                    <div className="text-xs font-bold">ESCALIER</div>
+                  </div>
+                );
+              } else if (structure.type === 'entrance' || structure.type === 'exit') {
+                return (
+                  <div 
+                    key={`${structure.type}-${index}`}
+                    className={`absolute ${structure.type === 'entrance' ? 'bg-indigo-900' : 'bg-purple-900'} rounded-md flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2`}
+                    style={{ 
+                      left: `${structure.x}%`, 
+                      top: `${structure.y}%`,
+                      width: `${structure.width}%`,
+                      height: `${structure.height}%`
+                    }}
+                  >
+                    <div className="text-xs font-bold">{structure.type === 'entrance' ? 'ENTRÉE' : 'SORTIE'}</div>
+                  </div>
+                );
+              } else if (structure.type === 'ramp') {
+                return (
+                  <div 
+                    key={`ramp-${index}`}
+                    className="absolute bg-gray-700 rounded-md flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2"
+                    style={{ 
+                      left: `${structure.x}%`, 
+                      top: `${structure.y}%`,
+                      width: `${structure.width}%`,
+                      height: `${structure.height}%`
+                    }}
+                  >
+                    <div className="text-xs font-bold">RAMPE {structure.to === 'p1' ? '↑' : '↓'}</div>
+                  </div>
+                );
+              } else if (structure.type === 'technicalRoom') {
+                return (
+                  <div 
+                    key={`tech-${index}`}
+                    className="absolute bg-red-900 bg-opacity-50 rounded-md flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2"
+                    style={{ 
+                      left: `${structure.x}%`, 
+                      top: `${structure.y}%`,
+                      width: `${structure.width}%`,
+                      height: `${structure.height}%`
+                    }}
+                  >
+                    <div className="text-xs font-bold text-center">LOCAL<br/>TECHNIQUE</div>
+                  </div>
+                );
+              }
+              return null;
+            })}
+            
+            {/* Parking spots */}
+            {parkingSpots[activeLevel].map(spot => (
+              <div 
+                key={spot.id}
+                className={`absolute w-10 h-5 border ${spot.occupied ? 'border-gray-500' : 'border-gray-700'} rounded transform -translate-x-1/2 -translate-y-1/2`}
+                style={{ 
+                  left: `${spot.x}%`, 
+                  top: `${spot.y}%`,
+                  backgroundColor: spot.occupied ? spot.carColor : 'transparent'
+                }}
+              >
+                {spot.number && (
+                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-xs font-bold">
+                    {spot.number}
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            {/* Detectors */}
+            {detectors[activeLevel].map(detector => (
+              <div 
+                key={detector.id}
+                className={`absolute w-6 h-6 rounded-full transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer z-10 ${selectedDetector?.id === detector.id ? 'ring-2 ring-yellow-400' : ''}`}
+                style={{ 
+                  left: `${detector.x}%`, 
+                  top: `${detector.y}%`,
+                  backgroundColor: detector.type === 'DI' ? '#ef4444' : '#3b82f6',
+                  opacity: selectedDetector?.id === detector.id && alarmActive ? '1' : '0.8',
+                  animation: selectedDetector?.id === detector.id && alarmActive ? 'pulse 1s infinite' : 'none'
+                }}
+                onClick={() => runSimulation(detector)}
+              >
+                <div className="text-xs font-bold">{detector.id}</div>
+                
+                {/* Detector label */}
+                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs whitespace-nowrap">
+                  {detector.type === 'DI' ? 'Détecteur Incendie' : 'Déclencheur Manuel'}
+                </div>
+              </div>
+            ))}
+            
+            {/* Cameras */}
+            {detectors[activeLevel].map(detector => (
+              <div 
+                key={`cam-${detector.id}`}
+                className={`absolute w-5 h-5 rounded-full bg-gray-700 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer ${cameraView === detector.camera ? 'ring-2 ring-blue-400' : ''}`}
+                style={{ 
+                  left: `${detector.cameraX}%`, 
+                  top: `${detector.cameraY}%`,
+                }}
+                onClick={() => setCameraView(detector.camera)}
+              >
+                <Camera className="w-3 h-3" />
+              </div>
+            ))}
+            
+            {/* Smoke particles */}
+            {smokeParticles.map(particle => (
+              <div 
+                key={particle.id}
+                className="absolute rounded-full bg-gray-400 transform -translate-x-1/2 -translate-y-1/2"
+                style={{ 
+                  left: `${particle.x}%`, 
+                  top: `${particle.y}%`,
+                  width: `${particle.size}px`,
+                  height: `${particle.size}px`,
+                  opacity: particle.opacity
+                }}
+              ></div>
+            ))}
+            
+            {/* Flame particles */}
+            {flameParticles.map(flame => (
+              <div 
+                key={flame.id}
+                className="absolute rounded-full transform -translate-x-1/2 -translate-y-1/2"
+                style={{ 
+                  left: `${flame.x}%`, 
+                  top: `${flame.y}%`,
+                  width: `${flame.size}px`,
+                  height: `${flame.size}px`,
+                  opacity: flame.opacity,
+                  background: `radial-gradient(circle, rgba(255,${flame.hue},0,1) 0%, rgba(255,${flame.hue/2},0,0.6) 70%, rgba(255,0,0,0) 100%)`,
+                  filter: 'blur(1px)'
+                }}
+              ></div>
+            ))}
+            
+            {/* Data packets */}
+            {dataPackets.map(packet => (
+              <DataPacket key={packet.id} packet={packet} />
+            ))}
+            
+            {/* Selected detector info */}
+            {selectedDetector && (
+              <div className="absolute bottom-4 left-4 bg-gray-800 bg-opacity-90 p-3 rounded-lg z-10 max-w-xs">
+                <h3 className="font-bold text-lg flex items-center">
+                  <Shield className="w-5 h-5 mr-2 text-blue-400" />
+                  Détecteur {selectedDetector.id}
+                </h3>
+                <div className="mt-2 space-y-1 text-sm">
+                  <p><span className="text-gray-400">Type:</span> {selectedDetector.type === 'DI' ? 'Détecteur Incendie' : 'Déclencheur Manuel'}</p>
+                  <p><span className="text-gray-400">Zone:</span> {selectedDetector.zone}</p>
+                  <p><span className="text-gray-400">Emplacement:</span> {selectedDetector.location}</p>
+                  <p><span className="text-gray-400">Caméra:</span> {selectedDetector.camera}</p>
+                  {selectedDetector.place && <p><span className="text-gray-400">Place:</span> {selectedDetector.place}</p>}
+                  {alarmActive && <p className="text-red-500 font-bold">ALARME ACTIVE</p>}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Process flow visualization (conditionally shown) */}
+          {showProcessFlow && (
+            <div className="h-64 bg-gray-800 border-t border-gray-700 p-4 relative">
+              <h2 className="font-bold mb-4">Flux de Traitement des Alarmes</h2>
+              
+              <div className="flex justify-between items-center h-32 px-10">
+                {/* ESSER Panel */}
+                <div className={`flex flex-col items-center ${simulationStep >= 1 ? 'text-red-500' : 'text-gray-500'}`}>
+                  <div className={`w-16 h-16 rounded-lg border-2 flex items-center justify-center mb-2 ${simulationStep >= 1 ? 'border-red-500 bg-red-900 bg-opacity-20' : 'border-gray-600'}`}>
+                    <AlertTriangle className="w-8 h-8" />
+                  </div>
+                  <div className="text-center text-sm">
+                    <div className="font-bold">ESSER</div>
+                    <div className="text-xs">Centrale Incendie</div>
+                  </div>
+                </div>
+                
+                {/* Arrow 1 */}
+                <div className={`w-24 h-0.5 ${simulationStep >= 2 ? 'bg-blue-500' : 'bg-gray-600'}`}></div>
+                
+                {/* MOXA */}
+                <div className={`flex flex-col items-center ${simulationStep >= 2 ? 'text-blue-500' : 'text-gray-500'}`}>
+                  <div className={`w-16 h-16 rounded-lg border-2 flex items-center justify-center mb-2 ${simulationStep >= 2 ? 'border-blue-500 bg-blue-900 bg-opacity-20' : 'border-gray-600'}`}>
+                    <Cpu className="w-8 h-8" />
+                  </div>
+                  <div className="text-center text-sm">
+                    <div className="font-bold">MOXA</div>
+                    <div className="text-xs">Convertisseur</div>
+                  </div>
+                </div>
+                
+                {/* Arrow 2 */}
+                <div className={`w-24 h-0.5 ${simulationStep >= 3 ? 'bg-green-500' : 'bg-gray-600'}`}></div>
+                
+                {/* IVPARK */}
+                <div className={`flex flex-col items-center ${simulationStep >= 3 ? 'text-green-500' : 'text-gray-500'}`}>
+                  <div className={`w-16 h-16 rounded-lg border-2 flex items-center justify-center mb-2 ${simulationStep >= 3 ? 'border-green-500 bg-green-900 bg-opacity-20' : 'border-gray-600'}`}>
+                    <Car className="w-8 h-8" />
+                  </div>
+                  <div className="text-center text-sm">
+                    <div className="font-bold">IVPARK</div>
+                    <div className="text-xs">Système Parking</div>
+                  </div>
+                </div>
+                
+                {/* Arrow 3 */}
+                <div className={`w-24 h-0.5 ${simulationStep >= 4 ? 'bg-orange-500' : 'bg-gray-600'}`}></div>
+                
+                {/* GTC */}
+                <div className={`flex flex-col items-center ${simulationStep >= 4 ? 'text-orange-500' : 'text-gray-500'}`}>
+                  <div className={`w-16 h-16 rounded-lg border-2 flex items-center justify-center mb-2 ${simulationStep >= 4 ? 'border-orange-500 bg-orange-900 bg-opacity-20' : 'border-gray-600'}`}>
+                    <Monitor className="w-8 h-8" />
+                  </div>
+                  <div className="text-center text-sm">
+                    <div className="font-bold">GTC</div>
+                    <div className="text-xs">Gestion Technique</div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Status indicators */}
+              <div className="absolute bottom-4 right-4 flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className={`w-3 h-3 rounded-full ${simulationStep > 0 ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+                  <span className="text-sm">Détection</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className={`w-3 h-3 rounded-full ${simulationStep >= 2 ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+                  <span className="text-sm">Traitement</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className={`w-3 h-3 rounded-full ${simulationStep >= 4 ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+                  <span className="text-sm">Notification</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className={`w-3 h-3 rounded-full ${simulationStep >= 5 ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+                  <span className="text-sm">Visualisation</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Right sidebar - Camera view */}
+        <div className="w-64 bg-gray-800 border-l border-gray-700 p-4 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-bold text-lg">Caméra</h2>
+            
+            {cameraView && (
+              <button 
+                onClick={() => setCameraFullscreen(!cameraFullscreen)} 
+                className="p-1 rounded hover:bg-gray-700"
+              >
+                <Maximize2 className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          
+          {cameraView ? (
+            <div className={`relative bg-black rounded overflow-hidden ${cameraFullscreen ? 'flex-1' : 'h-48'}`}>
+              {/* Camera overlay elements */}
+              <div className="absolute top-0 left-0 w-full p-2 flex justify-between text-xs">
+                <span>{cameraView}</span>
+                <span className="text-red-500">{currentTime.toLocaleTimeString()}</span>
+              </div>
+              
+              {/* Camera content - show the detector that triggered the camera */}
+              {selectedDetector && selectedDetector.camera === cameraView && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {/* Simulated parking spot with car */}
+                  {selectedDetector.place && selectedDetector.carColor && (
+                    <div className="relative">
+                      <div 
+                        className="w-20 h-10 rounded-md" 
+                        style={{ backgroundColor: selectedDetector.carColor }}
+                      ></div>
+                      <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs font-bold">
+                        {selectedDetector.place}
+                      </div>
+                      
+                      {/* Fire effect if alarm is active */}
+                      {alarmActive && (
+                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
+                          <div className="w-12 h-16 relative">
+                            <div className="absolute bottom-0 left-0 right-0 h-12 rounded-t-full" style={{ 
+                              background: 'radial-gradient(ellipse at center, rgba(255,78,0,0.8) 0%, rgba(255,0,0,0.4) 70%, rgba(255,0,0,0) 100%)',
+                              animation: 'flame 0.5s infinite alternate'
+                            }}></div>
+                            <div className="absolute bottom-2 left-2 right-2 h-10 rounded-t-full" style={{ 
+                              background: 'radial-gradient(ellipse at center, rgba(255,180,0,0.9) 0%, rgba(255,120,0,0.5) 70%, rgba(255,0,0,0) 100%)',
+                              animation: 'flame 0.7s infinite alternate'
+                            }}></div>
+                            <div className="absolute bottom-4 left-4 right-4 h-6 rounded-t-full" style={{ 
+                              background: 'radial-gradient(ellipse at center, rgba(255,255,0,1) 0%, rgba(255,180,0,0.6) 70%, rgba(255,0,0,0) 100%)',
+                              animation: 'flame 0.3s infinite alternate'
+                            }}></div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* For manual pull stations or areas without cars */}
+                  {(!selectedDetector.place || !selectedDetector.carColor) && (
+                    <div className="relative">
+                      {selectedDetector.type === 'DM' ? (
+                        <div className="w-16 h-24 bg-red-600 rounded-md flex items-center justify-center">
+                          <div className="w-8 h-8 bg-white rounded-full"></div>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <div className="w-32 h-16 bg-gray-700 rounded-md flex items-center justify-center">
+                            <span className="text-xs">Zone {selectedDetector.zone}</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Fire effect if alarm is active */}
+                      {alarmActive && (
+                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
+                          <div className="w-12 h-16 relative">
+                            <div className="absolute bottom-0 left-0 right-0 h-12 rounded-t-full" style={{ 
+                              background: 'radial-gradient(ellipse at center, rgba(255,78,0,0.8) 0%, rgba(255,0,0,0.4) 70%, rgba(255,0,0,0) 100%)',
+                              animation: 'flame 0.5s infinite alternate'
+                            }}></div>
+                            <div className="absolute bottom-2 left-2 right-2 h-10 rounded-t-full" style={{ 
+                              background: 'radial-gradient(ellipse at center, rgba(255,180,0,0.9) 0%, rgba(255,120,0,0.5) 70%, rgba(255,0,0,0) 100%)',
+                              animation: 'flame 0.7s infinite alternate'
+                            }}></div>
+                            <div className="absolute bottom-4 left-4 right-4 h-6 rounded-t-full" style={{ 
+                              background: 'radial-gradient(ellipse at center, rgba(255,255,0,1) 0%, rgba(255,180,0,0.6) 70%, rgba(255,0,0,0) 100%)',
+                              animation: 'flame 0.3s infinite alternate'
+                            }}></div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* If no specific detector is selected for this camera */}
+              {(!selectedDetector || selectedDetector.camera !== cameraView) && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-gray-500">Aucune activité détectée</span>
+                </div>
+              )}
+              
+              {/* Recording indicator */}
+              <div className="absolute bottom-2 right-2 flex items-center space-x-1">
+                <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                <span className="text-xs">REC</span>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gray-900 rounded h-48 flex items-center justify-center">
+              <span className="text-gray-500">Sélectionnez une caméra</span>
+            </div>
+          )}
+          
+          {/* Camera list */}
+          <div className="mt-4">
+            <h3 className="font-bold mb-2">Caméras disponibles</h3>
+            
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {Object.keys(detectors).flatMap(level => 
+                detectors[level].map(detector => (
+                  <button
+                    key={detector.camera}
+                    onClick={() => setCameraView(detector.camera)}
+                    className={`w-full p-2 text-left text-sm rounded flex items-center space-x-2 ${cameraView === detector.camera ? 'bg-blue-900' : 'hover:bg-gray-700'}`}
+                  >
+                    <Camera className="h-4 w-4 flex-shrink-0" />
+                    <div className="truncate">
+                      <div>{detector.camera}</div>
+                      <div className="text-xs text-gray-400">{detector.location}</div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+          
+          {/* System status */}
+          <div className="mt-auto pt-4 border-t border-gray-700">
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              <span>Système opérationnel</span>
+            </div>
+            
+            {alarmActive && (
+              <div className="flex items-center space-x-2 mt-2 text-red-500 animate-pulse">
+                <AlertTriangle className="h-5 w-5" />
+                <span>Alarme incendie active</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* CSS for animations */}
+      <style jsx>{`
+        @keyframes flame {
+          0% { transform: scale(0.9, 1.1); }
+          100% { transform: scale(1.1, 0.9); }
+        }
+        
+        @keyframes pulse {
+          0% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default XcelQParkRealisticSimulation;
